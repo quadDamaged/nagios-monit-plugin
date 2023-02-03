@@ -1,4 +1,18 @@
 #!/usr/bin/env python
+"""Check a monit service instance
+
+# Configuration File
+An optional configuration file may be used to avoid passing parameters on the
+command-line. The file is an ini-style file and not all options available.
+Parameters may be supplied as shown in the following example:
+
+```
+[authentication]
+username = someuser
+password = somepass
+```
+"""
+# FIXME: put this in help output.
 
 from __future__ import print_function
 
@@ -9,6 +23,7 @@ try:
 except ImportError:
     import httplib
 from optparse import OptionParser
+import configparser
 import sys
 import os
 import xml.etree.ElementTree
@@ -275,7 +290,7 @@ def process_service(service):
         oks.append("%s %s" % (svctype, svcname))
 
 def process_monit_response(response):
-    """Processes (hopefelly) XML response from monit"""
+    """Processes (hopefully) XML response from monit"""
     for regex, replacement in xml_hacks:
         response = re.sub(regex, replacement, response)
 
@@ -302,6 +317,7 @@ def main():
     p.add_option("-k","--insecure", dest="ignore_cert", action="store_true", default=False, help="Skip SSL certificate verification")
     p.add_option("-u","--username", dest="username", help="Username")
     p.add_option("-P","--password", dest="password", help="Password")
+    p.add_option("-c","--config", dest="config", help="Optional config file to read options from")
     p.add_option("-w","--warn-only", dest="svc_warn", help="Regular expression for service(s) to warn only if failed")
     p.add_option("-i","--include", dest="svc_include", help="Regular expression for service(s) to include into monitoring")
     p.add_option("-e","--exclude", dest="svc_exclude", help="Regular expression for service(s) to exclude from monitoring")
@@ -321,6 +337,13 @@ def main():
     p.add_option("-m","--maintenance", dest="maintenance", default="/run/monit.maintenance", help="If this file exist ignore all Unmonitored [/run/monit.maintenance]")
     p.add_option("-R","--reverse", dest="reverse", action="store_true", default=False, help="Issue a Warning if a service is Failed and Critical if Unmonitored")
     (opts, args) = p.parse_args()
+
+    if opts.config:
+        inifile = configparser.ConfigParser()
+        inifile.read(opts.config)
+        # TODO: try
+        if not opts.password: opts.password = inifile['authentication']['password']
+        if not opts.username: opts.usernaem = inifile['authentication']['username']
 
     if not opts.host:
         p.error("No <host> defined!")
