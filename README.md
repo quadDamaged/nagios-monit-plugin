@@ -55,6 +55,18 @@ check_monit.py -H <host> [<options>]
                         Unmonitored
 ```
 
+## Configuration File
+
+An optional configuration file may be used to avoid passing parameters on the
+command-line. The file is an ini-style file and not all options available.
+Parameters may be supplied as shown in the following example:
+
+```
+[authentication]
+username = someuser
+password = somepass
+```
+
 ## Sample Nagios configuration
 
 Nagios command definition looks like this:

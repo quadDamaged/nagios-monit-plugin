@@ -1,18 +1,4 @@
 #!/usr/bin/env python
-"""Check a monit service instance
-
-# Configuration File
-An optional configuration file may be used to avoid passing parameters on the
-command-line. The file is an ini-style file and not all options available.
-Parameters may be supplied as shown in the following example:
-
-```
-[authentication]
-username = someuser
-password = somepass
-```
-"""
-# FIXME: put this in help output.
 
 from __future__ import print_function
 
@@ -341,9 +327,12 @@ def main():
     if opts.config:
         inifile = configparser.ConfigParser()
         inifile.read(opts.config)
-        # TODO: try
-        if not opts.password: opts.password = inifile['authentication']['password']
-        if not opts.username: opts.usernaem = inifile['authentication']['username']
+        try:
+            if not opts.password: opts.password = inifile['authentication']['password']
+            if not opts.username: opts.username = inifile['authentication']['username']
+        except KeyError:
+            # This is handled later on.
+            pass
 
     if not opts.host:
         p.error("No <host> defined!")
